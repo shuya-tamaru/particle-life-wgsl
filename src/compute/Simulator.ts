@@ -58,6 +58,8 @@ export class Simulator {
   getInstance() {
     return {
       forceAccumulation: this.forceAccumulation,
+      integrate: this.integrate,
+      computeUniforms: this.computeUniforms,
     };
   }
 

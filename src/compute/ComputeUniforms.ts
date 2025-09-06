@@ -5,9 +5,9 @@ export class ComputeUniforms {
   private forceParams!: Float32Array;
   private interactionMatrix!: Float32Array;
 
-  private forceScale!: number;
-  private interactionRadius!: number;
-  private transitionRadius!: number;
+  public forceScale!: number;
+  public interactionRadius!: number;
+  public transitionRadius!: number;
 
   constructor(device: GPUDevice) {
     this.device = device;
