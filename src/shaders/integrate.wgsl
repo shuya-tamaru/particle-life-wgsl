@@ -43,13 +43,13 @@ fn cs_main(@builtin(global_invocation_id) global_id: vec3<u32>) {
       p.y + v_xy.y * ts.deltaTime
   );
 
-let aspectRatio = res.resolution.x / res.resolution.y;
-let frictionFactor = pow(0.5, ts.deltaTime / (ts.deltaTime * 2.0));
+  let aspectRatio = res.resolution.x / res.resolution.y;
+  let frictionFactor = pow(0.5, ts.deltaTime / (ts.deltaTime * 2.0));
 
-if (p_xy.x < -1.2 * aspectRatio) { p_xy.x += 2.0 * aspectRatio; }
-if (p_xy.x >  1.2 * aspectRatio) { p_xy.x -= 2.0 * aspectRatio; }
-if (p_xy.y < -1.2) { p_xy.y += 2.0; }
-if (p_xy.y >  1.2) { p_xy.y -= 2.0; }
+  if (p_xy.x < -1.2 * aspectRatio) { p_xy.x += 2.4 * aspectRatio; }
+  if (p_xy.x >  1.2 * aspectRatio) { p_xy.x -= 2.4 * aspectRatio; }
+  if (p_xy.y < -1.2) { p_xy.y += 2.4; }
+  if (p_xy.y >  1.2) { p_xy.y -= 2.4; }
 
   velocities[i] = vec4<f32>(v_xy, velocities[i].z, velocities[i].w);
   velocities[i] *= frictionFactor;
