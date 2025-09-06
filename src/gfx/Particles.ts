@@ -7,6 +7,7 @@ export class Particles {
   private device!: GPUDevice;
   private particleCount!: number;
   private typeCount!: number;
+  private particleParams!: Uint32Array;
 
   private circleInstance!: CircleInstance;
   private resolutionSystem!: ResolutionSystem;
@@ -23,6 +24,7 @@ export class Particles {
   private positionsBuffer!: GPUBuffer;
   private velocitiesBuffer!: GPUBuffer;
   private typesBuffer!: GPUBuffer;
+  private particleParamsBuffer!: GPUBuffer;
 
   constructor(
     device: GPUDevice,
@@ -93,6 +95,23 @@ export class Particles {
     this.device.queue.writeBuffer(this.positionsBuffer, 0, this.positions);
     this.device.queue.writeBuffer(this.velocitiesBuffer, 0, this.velocities);
     this.device.queue.writeBuffer(this.typesBuffer, 0, this.types);
+
+    //params {
+    // particleCount:number
+    // }
+    this.particleParams = new Uint32Array(4);
+    this.particleParams[0] = this.particleCount;
+
+    this.particleParamsBuffer = this.device.createBuffer({
+      size: 16,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    this.device.queue.writeBuffer(
+      this.particleParamsBuffer,
+      0,
+      this.particleParams
+    );
   }
 
   private createPipeline() {
@@ -209,6 +228,10 @@ export class Particles {
 
   getParticleCount() {
     return this.particleCount;
+  }
+
+  getParticleParamsBuffer() {
+    return this.particleParamsBuffer;
   }
 
   dispose() {

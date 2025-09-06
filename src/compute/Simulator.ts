@@ -20,7 +20,11 @@ export class Simulator {
   }
 
   private createInstances() {
-    this.forceAccumulation = new ForceAccumulation(this.device, this.particles);
+    this.forceAccumulation = new ForceAccumulation(
+      this.device,
+      this.particles,
+      this.timeStep
+    );
   }
 
   getInstance() {
