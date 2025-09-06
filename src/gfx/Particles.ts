@@ -1,6 +1,7 @@
 import type { CircleInstance } from "./CircleInstance";
 import particleShader from "../shaders/particle.wgsl";
 import type { ResolutionSystem } from "../utils/ResolutionSystem";
+import type { TimeStep } from "../utils/TimeStep";
 
 export class Particles {
   private device!: GPUDevice;
@@ -15,6 +16,7 @@ export class Particles {
   private velocities!: Float32Array;
   private types!: Uint32Array;
 
+  private timeStep!: TimeStep;
   private bindGroupLayout!: GPUBindGroupLayout;
   private format!: GPUTextureFormat;
   private pipeline!: GPURenderPipeline;
@@ -26,6 +28,7 @@ export class Particles {
     device: GPUDevice,
     circleInstance: CircleInstance,
     resolutionSystem: ResolutionSystem,
+    timeStep: TimeStep,
     particleCount: number,
     typeCount: number,
     format: GPUTextureFormat
@@ -33,6 +36,7 @@ export class Particles {
     this.device = device;
     this.circleInstance = circleInstance;
     this.resolutionSystem = resolutionSystem;
+    this.timeStep = timeStep;
     this.particleCount = particleCount;
     this.typeCount = typeCount;
     this.format = format;
@@ -102,17 +106,22 @@ export class Particles {
         {
           binding: 1,
           visibility: GPUShaderStage.VERTEX,
-          buffer: { type: "read-only-storage" }, //position
+          buffer: { type: "uniform" }, //timeStep
         },
         {
           binding: 2,
           visibility: GPUShaderStage.VERTEX,
-          buffer: { type: "read-only-storage" }, //velocity
+          buffer: { type: "read-only-storage" }, //position
         },
         {
           binding: 3,
           visibility: GPUShaderStage.VERTEX,
-          buffer: { type: "read-only-storage" },
+          buffer: { type: "read-only-storage" }, //velocity
+        },
+        {
+          binding: 4,
+          visibility: GPUShaderStage.VERTEX,
+          buffer: { type: "read-only-storage" }, //type
         },
       ],
     });
@@ -149,14 +158,18 @@ export class Particles {
         },
         {
           binding: 1,
-          resource: { buffer: this.positionsBuffer },
+          resource: { buffer: this.timeStep.getBuffer() },
         },
         {
           binding: 2,
-          resource: { buffer: this.velocitiesBuffer },
+          resource: { buffer: this.positionsBuffer },
         },
         {
           binding: 3,
+          resource: { buffer: this.velocitiesBuffer },
+        },
+        {
+          binding: 4,
           resource: { buffer: this.typesBuffer },
         },
       ],
@@ -192,6 +205,10 @@ export class Particles {
 
   getTypesBuffer() {
     return this.typesBuffer;
+  }
+
+  getParticleCount() {
+    return this.particleCount;
   }
 
   dispose() {

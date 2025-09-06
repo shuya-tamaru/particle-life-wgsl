@@ -1,4 +1,6 @@
+import type { Simulator } from "../compute/Simulator";
 import type { Scene } from "../scene/Scene";
+import { debugReadBuffer } from "../utils/debugReadBuffer";
 import type { ResolutionSystem } from "../utils/ResolutionSystem";
 
 export class Renderer {
@@ -7,18 +9,21 @@ export class Renderer {
 
   private scene!: Scene;
   private resolutionSystem!: ResolutionSystem;
+  private simulator!: Simulator;
 
   constructor(
     device: GPUDevice,
     context: GPUCanvasContext,
     _canvas: HTMLCanvasElement,
     scene: Scene,
-    resolutionSystem: ResolutionSystem
+    resolutionSystem: ResolutionSystem,
+    simulator: Simulator
   ) {
     this.device = device;
     this.context = context;
     this.scene = scene;
     this.resolutionSystem = resolutionSystem;
+    this.simulator = simulator;
   }
 
   async init() {}
@@ -33,6 +38,7 @@ export class Renderer {
 
   render() {
     const encoder = this.device.createCommandEncoder();
+    this.simulator.compute(encoder);
     const pass = encoder.beginRenderPass({
       colorAttachments: [
         {
@@ -46,5 +52,23 @@ export class Renderer {
     this.scene.draw(pass);
     pass.end();
     this.device.queue.submit([encoder.finish()]);
+
+    // debug;
+    // this.debug(
+    //   this.simulator.getInstance().forceAccumulation.getForcesBuffer(),
+    //   "float32"
+    // );
+  }
+
+  debug(buffer: GPUBuffer, type: "uint32" | "float32") {
+    this.device.queue
+      .onSubmittedWorkDone()
+      .then(() => debugReadBuffer(this.device, buffer, buffer.size))
+      .then((data) => {
+        const dataView = new (type === "uint32" ? Uint32Array : Float32Array)(
+          data
+        );
+        console.log(dataView);
+      });
   }
 }

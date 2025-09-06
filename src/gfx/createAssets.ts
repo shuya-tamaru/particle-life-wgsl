@@ -20,7 +20,8 @@ export function createAssets(
     device,
     circleInstance,
     resolutionSystem,
-    3000,
+    timeStep,
+    100,
     3,
     format
   );

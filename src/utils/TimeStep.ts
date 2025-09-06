@@ -8,6 +8,7 @@ export class TimeStep {
       size: 16,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
+    this.set(1 / 60);
   }
 
   set(value: number) {
@@ -17,7 +18,6 @@ export class TimeStep {
       new Float32Array([value, 0, 0, 0])
     );
   }
-
 
   getBuffer() {
     return this.buffer;

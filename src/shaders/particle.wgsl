@@ -7,11 +7,19 @@ struct Resolution {
   resolution: vec2<f32>
 };
 
+struct TimeStep {
+  timeStep: f32,
+  _pad0: f32,
+  _pad1: f32,
+  _pad2: f32
+};
+
 
 @group(0) @binding(0) var<uniform> res: Resolution;
-@group(0) @binding(1) var<storage, read> positions: array<vec4<f32>>;
-@group(0) @binding(2) var<storage, read> velocities: array<vec4<f32>>;
-@group(0) @binding(3) var<storage, read> types: array<u32>;
+@group(0) @binding(1) var<uniform> timeStep: TimeStep;
+@group(0) @binding(2) var<storage, read> positions: array<vec4<f32>>;
+@group(0) @binding(3) var<storage, read> velocities: array<vec4<f32>>;
+@group(0) @binding(4) var<storage, read> types: array<u32>;
 
 
 const palette : array<vec4<f32>, 3> = array<vec4<f32>, 3>(

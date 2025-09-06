@@ -5,6 +5,7 @@ import { attachResize, sizeCanvas } from "./resize";
 import { createAssets } from "../gfx/createAssets";
 import { Scene } from "../scene/Scene";
 import { Gui } from "../utils/Gui";
+import { Simulator } from "../compute/Simulator";
 
 export async function bootstrap() {
   const canvas = document.querySelector<HTMLCanvasElement>("#app");
@@ -26,6 +27,9 @@ export async function bootstrap() {
       canvas
     );
 
+    //compute
+    const simulator = new Simulator(device, particles, timeStep);
+
     //create scene
     const scene = new Scene(particles);
 
@@ -37,7 +41,8 @@ export async function bootstrap() {
       context,
       canvas,
       scene,
-      resolutionSystem
+      resolutionSystem,
+      simulator
     );
     await renderer.init();
 
@@ -48,18 +53,18 @@ export async function bootstrap() {
     // const stats = new Stats();
     // stats.showPanel(0);
     // document.body.appendChild(stats.dom);
-    let last = 0;
-    let totalTime = 0;
+    // let last = 0;
+    // let totalTime = 0;
 
     const loop = (t: number) => {
       // stats?.begin();
-      const dt = t - last;
-      last = t;
+      // const dt = t - last;
+      // last = t;
 
-      totalTime += dt;
-      timeStep.set(totalTime);
+      // totalTime += dt;
+      // timeStep.set(totalTime);
 
-      last = t;
+      // last = t;
       renderer.update();
       renderer.render();
 
