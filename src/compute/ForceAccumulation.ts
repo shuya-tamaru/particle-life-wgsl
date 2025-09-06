@@ -1,17 +1,20 @@
-import type { Particles } from "../gfx/Particles";
+import { Particles } from "../gfx/Particles";
 import forceAccumulationShader from "../shaders/forceAccumulation.wgsl";
+import { TimeStep } from "../utils/TimeStep";
 
 export class ForceAccumulation {
   private device!: GPUDevice;
   private particles!: Particles;
+  private timeStep!: TimeStep;
   private forces!: Float32Array;
   private forcesBuffer!: GPUBuffer;
   private bindGroupLayout!: GPUBindGroupLayout;
   private pipeline!: GPUComputePipeline;
 
-  constructor(device: GPUDevice, particles: Particles) {
+  constructor(device: GPUDevice, particles: Particles, timeStep: TimeStep) {
     this.device = device;
     this.particles = particles;
+    this.timeStep = timeStep;
     this.init();
   }
 
@@ -41,17 +44,32 @@ export class ForceAccumulation {
         {
           binding: 0,
           visibility: GPUShaderStage.COMPUTE,
-          buffer: { type: "storage" }, // positionsBuffer
+          buffer: { type: "read-only-storage" }, // positionsBuffer
         },
         {
           binding: 1,
           visibility: GPUShaderStage.COMPUTE,
-          buffer: { type: "storage" }, // velocitiesBuffer
+          buffer: { type: "read-only-storage" }, // velocitiesBuffer
         },
         {
           binding: 2,
           visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "read-only-storage" }, // typesBuffer
+        },
+        {
+          binding: 3,
+          visibility: GPUShaderStage.COMPUTE,
           buffer: { type: "storage" }, // forcesBuffer
+        },
+        {
+          binding: 4,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "uniform" }, // timeStep
+        },
+        {
+          binding: 5,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "uniform" }, // particleParamsBuffer
         },
       ],
     });
@@ -78,7 +96,19 @@ export class ForceAccumulation {
         },
         {
           binding: 2,
+          resource: { buffer: this.particles.getTypesBuffer() },
+        },
+        {
+          binding: 3,
           resource: { buffer: this.forcesBuffer },
+        },
+        {
+          binding: 4,
+          resource: { buffer: this.timeStep.getBuffer() },
+        },
+        {
+          binding: 5,
+          resource: { buffer: this.particles.getParticleParamsBuffer() },
         },
       ],
     });

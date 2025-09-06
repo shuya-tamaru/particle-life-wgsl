@@ -7,6 +7,7 @@ export class Particles {
   private device!: GPUDevice;
   private particleCount!: number;
   private typeCount!: number;
+  private particleParams!: Uint32Array;
 
   private circleInstance!: CircleInstance;
   private resolutionSystem!: ResolutionSystem;
@@ -23,6 +24,7 @@ export class Particles {
   private positionsBuffer!: GPUBuffer;
   private velocitiesBuffer!: GPUBuffer;
   private typesBuffer!: GPUBuffer;
+  private particleParamsBuffer!: GPUBuffer;
 
   constructor(
     device: GPUDevice,
@@ -56,13 +58,13 @@ export class Particles {
     this.types = new Uint32Array(this.particleCount);
 
     for (let i = 0; i < this.particleCount; i++) {
-      this.positions[i * 4] = (Math.random() * 2 - 1) * this.aspectRatio;
+      this.positions[i * 4] = (Math.random() * 2 - 1.0) * this.aspectRatio;
       this.positions[i * 4 + 1] = Math.random() * 2 - 1.0;
       this.positions[i * 4 + 2] = 0;
       this.positions[i * 4 + 3] = 0;
 
-      this.velocities[i * 4] = (Math.random() - 0.5) * 0.1;
-      this.velocities[i * 4 + 1] = (Math.random() - 0.5) * 0.1;
+      this.velocities[i * 4] = 0;
+      this.velocities[i * 4 + 1] = 0;
       this.velocities[i * 4 + 2] = 0;
       this.velocities[i * 4 + 3] = 0;
 
@@ -93,6 +95,23 @@ export class Particles {
     this.device.queue.writeBuffer(this.positionsBuffer, 0, this.positions);
     this.device.queue.writeBuffer(this.velocitiesBuffer, 0, this.velocities);
     this.device.queue.writeBuffer(this.typesBuffer, 0, this.types);
+
+    //params {
+    // particleCount:number
+    // }
+    this.particleParams = new Uint32Array(4);
+    this.particleParams[0] = this.particleCount;
+
+    this.particleParamsBuffer = this.device.createBuffer({
+      size: 16,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    this.device.queue.writeBuffer(
+      this.particleParamsBuffer,
+      0,
+      this.particleParams
+    );
   }
 
   private createPipeline() {
@@ -139,7 +158,23 @@ export class Particles {
       fragment: {
         module: this.device.createShaderModule({ code: particleShader }),
         entryPoint: "fs_main",
-        targets: [{ format: this.format }],
+        targets: [
+          {
+            format: this.format,
+            // blend: {
+            // color: {
+            //   srcFactor: "one",
+            //   dstFactor: "one",
+            //   operation: "add",
+            // },
+            // alpha: {
+            //   srcFactor: "one",
+            //   dstFactor: "one",
+            //   operation: "add",
+            // },
+            // },
+          },
+        ],
       },
       primitive: {
         topology: "triangle-list",
@@ -209,6 +244,10 @@ export class Particles {
 
   getParticleCount() {
     return this.particleCount;
+  }
+
+  getParticleParamsBuffer() {
+    return this.particleParamsBuffer;
   }
 
   dispose() {
