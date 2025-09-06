@@ -10,7 +10,7 @@ export class Gui {
   private particleUniforms!: ParticleUniforms;
   private computeUniforms!: ComputeUniforms;
   private simulator!: Simulator;
-  private bgColor!: { r: number; g: number; b: number; a: number };
+  public bgColor!: { r: number; g: number; b: number; a: number };
 
   constructor(
     particles: Particles,
