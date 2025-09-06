@@ -1,9 +1,9 @@
 import { ResolutionSystem } from "../utils/ResolutionSystem";
 import { MouseSystem } from "../utils/MouseSystem";
 import { TimeStep } from "../utils/TimeStep";
-import { Uniforms } from "../utils/Uniforms";
 import { CircleInstance } from "./CircleInstance";
 import { Particles } from "./Particles";
+import { ParticleUniforms } from "./unofrorms/ParticleUniforms";
 
 export function createAssets(
   device: GPUDevice,
@@ -11,17 +11,17 @@ export function createAssets(
   canvas: HTMLCanvasElement
 ) {
   const timeStep = new TimeStep(device);
-  const uniforms = new Uniforms(device);
   const resolutionSystem = new ResolutionSystem(device);
   const mouseSystem = new MouseSystem(device, canvas);
 
   const circleInstance = new CircleInstance(device);
+  const particleUniforms = new ParticleUniforms(device, 10000);
   const particles = new Particles(
     device,
     circleInstance,
     resolutionSystem,
     timeStep,
-    20000,
+    particleUniforms,
     6,
     format
   );
@@ -30,8 +30,8 @@ export function createAssets(
     resolutionSystem,
     mouseSystem,
     timeStep,
-    uniforms,
     circleInstance,
     particles,
+    particleUniforms,
   };
 }

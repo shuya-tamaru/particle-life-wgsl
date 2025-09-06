@@ -1,19 +1,21 @@
 struct TimeStep {
   timeStep: f32,
-  _pad0: f32,
+  deltaTime: f32,
   _pad1: f32,
   _pad2: f32
 };
 
 struct ParticleParams {
-  particleCount: u32
+  particleRadius: f32,
+  particleCount: u32,
+  _pad0: f32,
+  _pad1: f32
 };
+
 
 struct Resolution {
   resolution: vec2<f32>
 };
-
-const DAMPING = 0.99;
 
 @group(0) @binding(0) var<storage, read_write> positions: array<vec4<f32>>;
 @group(0) @binding(1) var<storage, read_write> velocities: array<vec4<f32>>;
@@ -31,18 +33,18 @@ fn cs_main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
   let f = forces[i].xy;
   var v_xy = vec2<f32>(
-      velocities[i].x + f.x * ts.timeStep,
-      velocities[i].y + f.y * ts.timeStep
+      velocities[i].x + f.x * ts.deltaTime,
+      velocities[i].y + f.y * ts.deltaTime
   );
 
   var p = positions[i];
   var p_xy = vec2<f32>(
-      p.x + v_xy.x * ts.timeStep,
-      p.y + v_xy.y * ts.timeStep
+      p.x + v_xy.x * ts.deltaTime,
+      p.y + v_xy.y * ts.deltaTime
   );
 
 let aspectRatio = res.resolution.x / res.resolution.y;
-let frictionFactor = pow(0.5, ts.timeStep / 0.008);
+let frictionFactor = pow(0.5, ts.deltaTime / (ts.deltaTime * 2.0));
 
 if (p_xy.x < -1.2 * aspectRatio) { p_xy.x += 2.0 * aspectRatio; }
 if (p_xy.x >  1.2 * aspectRatio) { p_xy.x -= 2.0 * aspectRatio; }

@@ -1,19 +1,31 @@
 import { Particles } from "../gfx/Particles";
+import { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
 import forceAccumulationShader from "../shaders/forceAccumulation.wgsl";
 import { TimeStep } from "../utils/TimeStep";
+import { ComputeUniforms } from "./ComputeUniforms";
 
 export class ForceAccumulation {
   private device!: GPUDevice;
   private particles!: Particles;
+  private particleUniforms!: ParticleUniforms;
+  private computeUniforms!: ComputeUniforms;
   private timeStep!: TimeStep;
   private forces!: Float32Array;
   private forcesBuffer!: GPUBuffer;
   private bindGroupLayout!: GPUBindGroupLayout;
   private pipeline!: GPUComputePipeline;
 
-  constructor(device: GPUDevice, particles: Particles, timeStep: TimeStep) {
+  constructor(
+    device: GPUDevice,
+    particles: Particles,
+    particleUniforms: ParticleUniforms,
+    computeUniforms: ComputeUniforms,
+    timeStep: TimeStep
+  ) {
     this.device = device;
     this.particles = particles;
+    this.particleUniforms = particleUniforms;
+    this.computeUniforms = computeUniforms;
     this.timeStep = timeStep;
     this.init();
   }
@@ -71,6 +83,16 @@ export class ForceAccumulation {
           visibility: GPUShaderStage.COMPUTE,
           buffer: { type: "uniform" }, // particleParamsBuffer
         },
+        {
+          binding: 6,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "uniform" }, // forceParamsBuffer
+        },
+        {
+          binding: 7,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "read-only-storage" }, // interactionMatrixBuffer
+        },
       ],
     });
 
@@ -108,7 +130,17 @@ export class ForceAccumulation {
         },
         {
           binding: 5,
-          resource: { buffer: this.particles.getParticleParamsBuffer() },
+          resource: { buffer: this.particleUniforms.getParticleParamsBuffer() },
+        },
+        {
+          binding: 6,
+          resource: { buffer: this.computeUniforms.getForceParamsBuffer() },
+        },
+        {
+          binding: 7,
+          resource: {
+            buffer: this.computeUniforms.getInteractionMatrixBuffer(),
+          },
         },
       ],
     });
@@ -126,7 +158,7 @@ export class ForceAccumulation {
     return this.forcesBuffer;
   }
 
-  destroy() {
+  dispose() {
     this.forcesBuffer.destroy();
   }
 }

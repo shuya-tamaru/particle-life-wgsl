@@ -8,6 +8,7 @@ export class Renderer {
   private context: GPUCanvasContext;
 
   private scene!: Scene;
+  private bgColor!: { r: number; g: number; b: number; a: number };
   private resolutionSystem!: ResolutionSystem;
   private simulator!: Simulator;
 
@@ -15,6 +16,7 @@ export class Renderer {
     device: GPUDevice,
     context: GPUCanvasContext,
     _canvas: HTMLCanvasElement,
+    bgColor: { r: number; g: number; b: number; a: number },
     scene: Scene,
     resolutionSystem: ResolutionSystem,
     simulator: Simulator
@@ -22,6 +24,7 @@ export class Renderer {
     this.device = device;
     this.context = context;
     this.scene = scene;
+    this.bgColor = bgColor;
     this.resolutionSystem = resolutionSystem;
     this.simulator = simulator;
   }
@@ -43,7 +46,7 @@ export class Renderer {
       colorAttachments: [
         {
           view: this.context.getCurrentTexture().createView(),
-          clearValue: { r: 0.05, g: 0.07, b: 0.1, a: 1.0 },
+          clearValue: this.bgColor,
           loadOp: "clear",
           storeOp: "store",
         },

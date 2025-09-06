@@ -1,5 +1,4 @@
-import type { Particles } from "../gfx/Particles";
-
+import { Particles } from "../gfx/Particles";
 export class Scene {
   private particles!: Particles;
 

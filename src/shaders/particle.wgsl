@@ -10,75 +10,51 @@ struct Resolution {
   resolution: vec2<f32>
 };
 
+struct ParticleParams {
+  particleRadius: f32,
+  particleCount: u32,
+  _pad0: f32,
+  _pad1: f32
+};
+
 struct TimeStep {
   timeStep: f32,
-  _pad0: f32,
+  deltaTime: f32,
   _pad1: f32,
   _pad2: f32
+};
+
+struct ColorPallet {
+  palette: array<vec4<f32>, 6>
 };
 
 
 @group(0) @binding(0) var<uniform> res: Resolution;
 @group(0) @binding(1) var<uniform> timeStep: TimeStep;
-@group(0) @binding(2) var<storage, read> positions: array<vec4<f32>>;
-@group(0) @binding(3) var<storage, read> velocities: array<vec4<f32>>;
-@group(0) @binding(4) var<storage, read> types: array<u32>;
+@group(0) @binding(2) var<uniform> pp: ParticleParams;
+@group(0) @binding(3) var<uniform> cp: ColorPallet;
+@group(0) @binding(4) var<storage, read> positions: array<vec4<f32>>;
+@group(0) @binding(5) var<storage, read> velocities: array<vec4<f32>>;
+@group(0) @binding(6) var<storage, read> types: array<u32>;
 
-
-
-const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-    vec4<f32>(0.6, 0.8, 1.0, 1.0) ,
-    vec4<f32>(0.1, 0.4, 1.0, 1.0), // ディープブルー（胴体）
-    vec4<f32>(0.4, 0.2, 0.8, 1.0), // パープル（尾に向かう変化）
-    vec4<f32>(0.2, 1.0, 0.7, 1.0), // エメラルドグリーン（水生っぽい外郭）
-    vec4<f32>(1.0, 1.0, 0.3, 1.0), // 黄（浮遊光）,
-    vec4<f32>(1.0, 0.95, 0.9, 1.0) // 白（反射光／水面）
-);
-
-// const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-//     vec4<f32>(1.0, 0.1, 0.7, 1.0), // コーラルピンク
-//     vec4<f32>(0.2, 1.0, 0.7, 1.0), // エメラルドグリーン
-//     vec4<f32>(0.2, 0.8, 1.0, 1.0), // ターコイズブルー
-//     vec4<f32>(0.1, 0.2, 1.0, 1.0), // ディープパープル
-//     vec4<f32>(0.8, 1.0, 0.2, 1.0), // ライムイエロー
-//     vec4<f32>(1.0, 1.0, 0.9, 1.0)  // ソフトホワイト
-// );
-// const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-//     vec4<f32>(1.0, 0.1, 0.4, 1.0), // パステルピンク
-//     vec4<f32>(0.6, 0.8, 1.0, 1.0), // パステルブルー
-//     vec4<f32>(0.5, 0.9, 0.5, 1.0), // パステルグリーン
-//     vec4<f32>(1.0, 1.0, 1.0, 1.0), // パステルイエロー
-//     vec4<f32>(0.2, 0.2, 1.0, 1.0), // パステルパープル
-//     vec4<f32>(0.2, 0.4, 1.0, 1.0)  // ホワイトピーチ
-// );
-// const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-//     vec4<f32>(1.0, 0.2, 0.0, 1.0), // ファイアレッド
-//     vec4<f32>(1.0, 0.5, 0.0, 1.0), // オレンジフレア
-//     vec4<f32>(1.0, 1.0, 0.0, 1.0), // ソーライエロー
-//     vec4<f32>(0.3, 0.7, 1.0, 1.0), // アイスブルー
-//     vec4<f32>(0.0, 1.0, 0.8, 1.0), // ディープシアン
-//     vec4<f32>(0.7, 0.2, 1.0, 1.0)  // コズミックパープル
-// );
 
 fn getColor(particleType: u32) -> vec4<f32> {
-  if (particleType == 0u) {
-    return palette[0];
-  } else if (particleType == 1u) {
-    return palette[1];
-  } else if (particleType == 2u) {
-    return palette[2];
-  } else if (particleType == 3u) {
-    return palette[3];
-  } else if (particleType == 4u) {
-    return palette[4];
-  } else if (particleType == 5u) {
-    return palette[5];
-  } else{
+  if (particleType >= 6u) {
     return vec4<f32>(1.0,1.0,1.0, 1.0);
+  }else {
+    return cp.palette[particleType];
   }
 }
 
-const RADIUS = 0.008;
+fn rand(seed: vec2<f32>) -> f32 {
+    let dotVal = dot(seed, vec2<f32>(12.9898, 78.233));
+    return fract(sin(dotVal) * 43758.5453);
+}
+
+fn randRange(seed: vec2<f32>, minVal: f32, maxVal: f32) -> f32 {
+    return mix(minVal, maxVal, rand(seed));
+}
+
 
 @vertex
 fn vs_main(
@@ -87,7 +63,12 @@ fn vs_main(
  ) -> VertexOutput {
   var output: VertexOutput;
   let center = positions[iid];
-  var worldPos = center.xy + vertPos.xy * RADIUS;
+  let seed = vec2<f32>(f32(iid), f32(iid));
+  var radius = pp.particleRadius;
+  if (types[iid] > 3u) {
+    radius = pp.particleRadius * randRange(seed, 0.4, 1.2);
+  }
+  var worldPos = center.xy + vertPos.xy * radius;
   let aspectRatio = res.resolution.x / res.resolution.y;
 
   worldPos = vec2<f32>(worldPos.x / aspectRatio, worldPos.y);
@@ -109,6 +90,7 @@ fn fs_main(
 ) -> @location(0) vec4<f32> {
   let dist = length(localPos);
   var glow = 0.0;
+  
   if (ptype == 0u) {
     glow =  smoothstep(0.0, 1.0, dist);
   } else if (ptype == 1u) {
@@ -123,6 +105,6 @@ fn fs_main(
     glow = 1.0 -smoothstep(0.0, 1.0, dist);
   }
 
-  let emission = color.rgb * glow * 1.5;    // 中心を強調
+  let emission = color.rgb * glow * 2.0;    // 中心を強調
   return vec4<f32>(emission, glow);
 }

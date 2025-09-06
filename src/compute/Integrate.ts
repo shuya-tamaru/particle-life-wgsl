@@ -3,10 +3,12 @@ import { TimeStep } from "../utils/TimeStep";
 import { ForceAccumulation } from "./ForceAccumulation";
 import integrateShader from "../shaders/integrate.wgsl";
 import type { ResolutionSystem } from "../utils/ResolutionSystem";
+import type { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
 
 export class Integrate {
   private device!: GPUDevice;
   private particles!: Particles;
+  private particleUniforms!: ParticleUniforms;
   private forceAccumulation!: ForceAccumulation;
   private timeStep!: TimeStep;
   private resolutionSystem!: ResolutionSystem;
@@ -17,19 +19,21 @@ export class Integrate {
   constructor(
     device: GPUDevice,
     particles: Particles,
+    particleUniforms: ParticleUniforms,
     timeStep: TimeStep,
     forceAccumulation: ForceAccumulation,
     resolutionSystem: ResolutionSystem
   ) {
     this.device = device;
     this.particles = particles;
+    this.particleUniforms = particleUniforms;
     this.timeStep = timeStep;
     this.forceAccumulation = forceAccumulation;
     this.resolutionSystem = resolutionSystem;
     this.init();
   }
 
-  private init() {
+  init() {
     this.createBufferLayout();
   }
 
@@ -89,7 +93,10 @@ export class Integrate {
         { binding: 1, resource: this.particles.getVelocitiesBuffer() },
         { binding: 2, resource: this.forceAccumulation.getForcesBuffer() },
         { binding: 3, resource: this.timeStep.getBuffer() },
-        { binding: 4, resource: this.particles.getParticleParamsBuffer() },
+        {
+          binding: 4,
+          resource: this.particleUniforms.getParticleParamsBuffer(),
+        },
         { binding: 5, resource: this.resolutionSystem.getBuffer() },
       ],
     });
