@@ -1,7 +1,8 @@
 import { Particles } from "../gfx/Particles";
-import type { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
-import type { ResolutionSystem } from "../utils/ResolutionSystem";
+import { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
+import { ResolutionSystem } from "../utils/ResolutionSystem";
 import { TimeStep } from "../utils/TimeStep";
+import { ComputeUniforms } from "./ComputeUniforms";
 import { ForceAccumulation } from "./ForceAccumulation";
 import { Integrate } from "./Integrate";
 
@@ -11,6 +12,8 @@ export class Simulator {
   private particleUniforms!: ParticleUniforms;
   private timeStep!: TimeStep;
   private resolutionSystem!: ResolutionSystem;
+
+  private computeUniforms!: ComputeUniforms;
   private forceAccumulation!: ForceAccumulation;
   private integrate!: Integrate;
 
@@ -34,10 +37,12 @@ export class Simulator {
   }
 
   private createInstances() {
+    this.computeUniforms = new ComputeUniforms(this.device);
     this.forceAccumulation = new ForceAccumulation(
       this.device,
       this.particles,
       this.particleUniforms,
+      this.computeUniforms,
       this.timeStep
     );
     this.integrate = new Integrate(
