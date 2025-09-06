@@ -2,15 +2,16 @@ import type { CircleInstance } from "./CircleInstance";
 import particleShader from "../shaders/particle.wgsl";
 import type { ResolutionSystem } from "../utils/ResolutionSystem";
 import type { TimeStep } from "../utils/TimeStep";
+import type { ParticleUniforms } from "./unofrorms/ParticleUniforms";
 
 export class Particles {
   private device!: GPUDevice;
   private particleCount!: number;
   private typeCount!: number;
-  private particleParams!: Uint32Array;
 
   private circleInstance!: CircleInstance;
   private resolutionSystem!: ResolutionSystem;
+  private particleUniforms!: ParticleUniforms;
   private aspectRatio!: number;
 
   private positions!: Float32Array;
@@ -31,17 +32,20 @@ export class Particles {
     circleInstance: CircleInstance,
     resolutionSystem: ResolutionSystem,
     timeStep: TimeStep,
-    particleCount: number,
+    particleUniforms: ParticleUniforms,
     typeCount: number,
     format: GPUTextureFormat
   ) {
     this.device = device;
+    this.format = format;
+
     this.circleInstance = circleInstance;
     this.resolutionSystem = resolutionSystem;
     this.timeStep = timeStep;
-    this.particleCount = particleCount;
+    this.particleUniforms = particleUniforms;
+    this.particleCount = particleUniforms.particleCount;
+
     this.typeCount = typeCount;
-    this.format = format;
     this.aspectRatio = resolutionSystem.getAspectRatio();
     this.init();
   }
@@ -95,23 +99,6 @@ export class Particles {
     this.device.queue.writeBuffer(this.positionsBuffer, 0, this.positions);
     this.device.queue.writeBuffer(this.velocitiesBuffer, 0, this.velocities);
     this.device.queue.writeBuffer(this.typesBuffer, 0, this.types);
-
-    //params {
-    // particleCount:number
-    // }
-    this.particleParams = new Uint32Array(4);
-    this.particleParams[0] = this.particleCount;
-
-    this.particleParamsBuffer = this.device.createBuffer({
-      size: 16,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-
-    this.device.queue.writeBuffer(
-      this.particleParamsBuffer,
-      0,
-      this.particleParams
-    );
   }
 
   private createPipeline() {
@@ -120,7 +107,7 @@ export class Particles {
         {
           binding: 0,
           visibility: GPUShaderStage.VERTEX,
-          buffer: { type: "uniform" }, //transformParams
+          buffer: { type: "uniform" }, //resolution
         },
         {
           binding: 1,
@@ -130,15 +117,25 @@ export class Particles {
         {
           binding: 2,
           visibility: GPUShaderStage.VERTEX,
-          buffer: { type: "read-only-storage" }, //position
+          buffer: { type: "uniform" }, //particleParams
         },
         {
           binding: 3,
           visibility: GPUShaderStage.VERTEX,
-          buffer: { type: "read-only-storage" }, //velocity
+          buffer: { type: "uniform" }, //colorPallet
         },
         {
           binding: 4,
+          visibility: GPUShaderStage.VERTEX,
+          buffer: { type: "read-only-storage" }, //position
+        },
+        {
+          binding: 5,
+          visibility: GPUShaderStage.VERTEX,
+          buffer: { type: "read-only-storage" }, //velocity
+        },
+        {
+          binding: 6,
           visibility: GPUShaderStage.VERTEX,
           buffer: { type: "read-only-storage" }, //type
         },
@@ -162,16 +159,16 @@ export class Particles {
           {
             format: this.format,
             // blend: {
-            // color: {
-            //   srcFactor: "one",
-            //   dstFactor: "one",
-            //   operation: "add",
-            // },
-            // alpha: {
-            //   srcFactor: "one",
-            //   dstFactor: "one",
-            //   operation: "add",
-            // },
+            //   color: {
+            //     srcFactor: "one",
+            //     dstFactor: "one",
+            //     operation: "add",
+            //   },
+            //   alpha: {
+            //     srcFactor: "one",
+            //     dstFactor: "one",
+            //     operation: "add",
+            //   },
             // },
           },
         ],
@@ -197,14 +194,22 @@ export class Particles {
         },
         {
           binding: 2,
-          resource: { buffer: this.positionsBuffer },
+          resource: { buffer: this.particleUniforms.getParticleParamsBuffer() },
         },
         {
           binding: 3,
-          resource: { buffer: this.velocitiesBuffer },
+          resource: { buffer: this.particleUniforms.getColorBuffer() },
         },
         {
           binding: 4,
+          resource: { buffer: this.positionsBuffer },
+        },
+        {
+          binding: 5,
+          resource: { buffer: this.velocitiesBuffer },
+        },
+        {
+          binding: 6,
           resource: { buffer: this.typesBuffer },
         },
       ],

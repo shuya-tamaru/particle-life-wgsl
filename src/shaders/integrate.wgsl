@@ -6,8 +6,12 @@ struct TimeStep {
 };
 
 struct ParticleParams {
-  particleCount: u32
+  particleRadius: f32,
+  particleCount: u32,
+  _pad0: f32,
+  _pad1: f32
 };
+
 
 struct Resolution {
   resolution: vec2<f32>

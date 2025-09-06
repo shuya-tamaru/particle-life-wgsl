@@ -21,16 +21,14 @@ export async function bootstrap() {
     const { device, context, format } = await Device.init(canvas);
 
     //create assets
-    const { resolutionSystem, timeStep, uniforms, particles } = createAssets(
-      device,
-      format,
-      canvas
-    );
+    const { resolutionSystem, timeStep, particles, particleUniforms } =
+      createAssets(device, format, canvas);
 
     //compute
     const simulator = new Simulator(
       device,
       particles,
+      particleUniforms,
       timeStep,
       resolutionSystem
     );

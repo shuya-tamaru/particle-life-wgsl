@@ -1,19 +1,27 @@
 import { Particles } from "../gfx/Particles";
+import { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
 import forceAccumulationShader from "../shaders/forceAccumulation.wgsl";
 import { TimeStep } from "../utils/TimeStep";
 
 export class ForceAccumulation {
   private device!: GPUDevice;
   private particles!: Particles;
+  private particleUniforms!: ParticleUniforms;
   private timeStep!: TimeStep;
   private forces!: Float32Array;
   private forcesBuffer!: GPUBuffer;
   private bindGroupLayout!: GPUBindGroupLayout;
   private pipeline!: GPUComputePipeline;
 
-  constructor(device: GPUDevice, particles: Particles, timeStep: TimeStep) {
+  constructor(
+    device: GPUDevice,
+    particles: Particles,
+    particleUniforms: ParticleUniforms,
+    timeStep: TimeStep
+  ) {
     this.device = device;
     this.particles = particles;
+    this.particleUniforms = particleUniforms;
     this.timeStep = timeStep;
     this.init();
   }
@@ -108,7 +116,7 @@ export class ForceAccumulation {
         },
         {
           binding: 5,
-          resource: { buffer: this.particles.getParticleParamsBuffer() },
+          resource: { buffer: this.particleUniforms.getParticleParamsBuffer() },
         },
       ],
     });

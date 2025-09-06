@@ -6,7 +6,10 @@ struct TimeStep {
 };
 
 struct ParticleParams {
-  particleCount: u32
+  particleRadius: f32,
+  particleCount: u32,
+  _pad0: f32,
+  _pad1: f32
 };
 
 const interactionMatrix: array<f32, 36> = array<f32, 36>(
