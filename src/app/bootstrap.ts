@@ -37,12 +37,14 @@ export async function bootstrap() {
     const scene = new Scene(particles);
 
     //gui
-    // new Gui(uniforms);
+    const bgColor = { r: 0.05, g: 0.07, b: 0.1, a: 1.0 };
+    new Gui(particleUniforms, bgColor);
 
     const renderer = new Renderer(
       device,
       context,
       canvas,
+      bgColor,
       scene,
       resolutionSystem,
       simulator
@@ -56,16 +58,16 @@ export async function bootstrap() {
     // const stats = new Stats();
     // stats.showPanel(0);
     // document.body.appendChild(stats.dom);
-    // let last = 0;
-    // let totalTime = 0;
+    let last = 0;
+    let totalTime = 0;
 
     const loop = (t: number) => {
       // stats?.begin();
-      // const dt = t - last;
-      // last = t;
+      const dt = t - last;
+      last = t;
 
-      // totalTime += dt;
-      // timeStep.set(totalTime);
+      totalTime += dt;
+      timeStep.set(totalTime);
 
       // last = t;
       renderer.update();

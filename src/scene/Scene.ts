@@ -1,6 +1,4 @@
-import type { Particles } from "../gfx/Particles";
-import type { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
-
+import { Particles } from "../gfx/Particles";
 export class Scene {
   private particles!: Particles;
 

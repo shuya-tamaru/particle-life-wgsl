@@ -19,7 +19,7 @@ struct ParticleParams {
 
 struct TimeStep {
   timeStep: f32,
-  _pad0: f32,
+  deltaTime: f32,
   _pad1: f32,
   _pad2: f32
 };
@@ -46,6 +46,7 @@ fn getColor(particleType: u32) -> vec4<f32> {
   }
 }
 
+
 @vertex
 fn vs_main(
   @location(0) vertPos: vec4<f32>,
@@ -53,7 +54,11 @@ fn vs_main(
  ) -> VertexOutput {
   var output: VertexOutput;
   let center = positions[iid];
-  var worldPos = center.xy + vertPos.xy * pp.particleRadius;
+  var radius = pp.particleRadius;
+  if (types[iid] == 0u) {
+    radius = pp.particleRadius * 1.15;
+  }
+  var worldPos = center.xy + vertPos.xy * radius;
   let aspectRatio = res.resolution.x / res.resolution.y;
 
   worldPos = vec2<f32>(worldPos.x / aspectRatio, worldPos.y);
@@ -89,6 +94,6 @@ fn fs_main(
     glow = 1.0 -smoothstep(0.0, 1.0, dist);
   }
 
-  let emission = color.rgb * glow * 1.5;    // 中心を強調
+  let emission = color.rgb * glow * 2.0;    // 中心を強調
   return vec4<f32>(emission, glow);
 }

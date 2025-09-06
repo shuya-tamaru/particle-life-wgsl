@@ -16,7 +16,7 @@ export class ParticleUniforms {
   public color4!: { r: number; g: number; b: number; a: number };
   public color5!: { r: number; g: number; b: number; a: number };
 
-  public pallet0!: { r: number; g: number; b: number; a: number }[];
+  public currentPalette!: { r: number; g: number; b: number; a: number }[];
   public pallet1!: { r: number; g: number; b: number; a: number }[];
   public pallet2!: { r: number; g: number; b: number; a: number }[];
 
@@ -24,16 +24,14 @@ export class ParticleUniforms {
     this.device = device;
     this.particleCount = particleCount;
 
-    this.pallet0 = colorSet.palette0;
-    this.pallet1 = colorSet.palette1;
-    this.pallet2 = colorSet.palette2;
+    this.currentPalette = colorSet.palette0;
 
-    this.color0 = this.pallet0[0];
-    this.color1 = this.pallet0[1];
-    this.color2 = this.pallet0[2];
-    this.color3 = this.pallet0[3];
-    this.color4 = this.pallet0[4];
-    this.color5 = this.pallet0[5];
+    this.color0 = this.currentPalette[0];
+    this.color1 = this.currentPalette[1];
+    this.color2 = this.currentPalette[2];
+    this.color3 = this.currentPalette[3];
+    this.color4 = this.currentPalette[4];
+    this.color5 = this.currentPalette[5];
 
     this.particleRadius = 0.008;
     this.init();
@@ -69,6 +67,59 @@ export class ParticleUniforms {
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
+    this.device.queue.writeBuffer(this.colorBuffer, 0, colors);
+  }
+
+  updateColorPallet(palette: { r: number; g: number; b: number; a: number }[]) {
+    this.currentPalette = palette;
+    this.color0 = this.currentPalette[0];
+    this.color1 = this.currentPalette[1];
+    this.color2 = this.currentPalette[2];
+    this.color3 = this.currentPalette[3];
+    this.color4 = this.currentPalette[4];
+    this.color5 = this.currentPalette[5];
+
+    const colors = new Float32Array(
+      [
+        this.color0,
+        this.color1,
+        this.color2,
+        this.color3,
+        this.color4,
+        this.color5,
+      ].flatMap((color) => [color.r, color.g, color.b, color.a])
+    );
+    this.device.queue.writeBuffer(this.colorBuffer, 0, colors);
+  }
+
+  updateColorByIndex(
+    index: number,
+    color: { r: number; g: number; b: number; a: number }
+  ) {
+    if (index === 0) {
+      this.color0 = color;
+    } else if (index === 1) {
+      this.color1 = color;
+    } else if (index === 2) {
+      this.color2 = color;
+    } else if (index === 3) {
+      this.color3 = color;
+    } else if (index === 4) {
+      this.color4 = color;
+    } else if (index === 5) {
+      this.color5 = color;
+    }
+
+    const colors = new Float32Array(
+      [
+        this.color0,
+        this.color1,
+        this.color2,
+        this.color3,
+        this.color4,
+        this.color5,
+      ].flatMap((color) => [color.r, color.g, color.b, color.a])
+    );
     this.device.queue.writeBuffer(this.colorBuffer, 0, colors);
   }
 
