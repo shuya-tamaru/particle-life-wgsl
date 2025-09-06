@@ -1,26 +1,42 @@
 import GUI from "lil-gui";
 import { ParticleUniforms } from "../gfx/unofrorms/ParticleUniforms";
+import { Particles } from "../gfx/Particles";
+import { Simulator } from "../compute/Simulator";
 import { ComputeUniforms } from "../compute/ComputeUniforms";
 
 export class Gui {
   private gui!: GUI;
+  private particles!: Particles;
   private particleUniforms!: ParticleUniforms;
   private computeUniforms!: ComputeUniforms;
+  private simulator!: Simulator;
   private bgColor!: { r: number; g: number; b: number; a: number };
 
   constructor(
+    particles: Particles,
     particleUniforms: ParticleUniforms,
-    computeUniforms: ComputeUniforms,
+    simulator: Simulator,
     bgColor: { r: number; g: number; b: number; a: number }
   ) {
     this.gui = new GUI({ title: "Controls " });
+    this.particles = particles;
     this.particleUniforms = particleUniforms;
-    this.computeUniforms = computeUniforms;
+    this.simulator = simulator;
+    this.computeUniforms = simulator.getInstance().computeUniforms;
     this.bgColor = bgColor;
     this.init();
   }
 
   init() {
+    this.gui
+      .add(this.particleUniforms, "particleCount", 1000, 20000, 2000)
+      .name("Particle Count")
+      .onChange((value: number) => {
+        this.particleUniforms.updateParticleCount(value);
+        this.particles.updateParticleCount(value);
+        this.reset();
+      });
+
     const colorFolder = this.gui.addFolder("Color Settings");
     const computeFolder = this.gui.addFolder("Compute Settings");
     colorFolder
@@ -72,6 +88,12 @@ export class Gui {
           value
         );
       });
+  }
+
+  private reset() {
+    this.particleUniforms.reset();
+    this.particles.reset();
+    this.simulator.resetSimulation();
   }
 
   dispose() {

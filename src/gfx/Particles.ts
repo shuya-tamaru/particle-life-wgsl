@@ -158,18 +158,6 @@ export class Particles {
         targets: [
           {
             format: this.format,
-            // blend: {
-            //   color: {
-            //     srcFactor: "one",
-            //     dstFactor: "one",
-            //     operation: "add",
-            //   },
-            //   alpha: {
-            //     srcFactor: "one",
-            //     dstFactor: "one",
-            //     operation: "add",
-            //   },
-            // },
           },
         ],
       },
@@ -253,6 +241,15 @@ export class Particles {
 
   getParticleParamsBuffer() {
     return this.particleParamsBuffer;
+  }
+
+  updateParticleCount(count: number) {
+    this.particleCount = count;
+  }
+
+  reset() {
+    this.dispose();
+    this.init();
   }
 
   dispose() {

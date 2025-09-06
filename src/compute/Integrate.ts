@@ -33,7 +33,7 @@ export class Integrate {
     this.init();
   }
 
-  private init() {
+  init() {
     this.createBufferLayout();
   }
 

@@ -12,7 +12,7 @@ export class ComputeUniforms {
   constructor(device: GPUDevice) {
     this.device = device;
     this.forceScale = 20.0;
-    this.interactionRadius = 0.1;
+    this.interactionRadius = 0.15;
     this.transitionRadius = 0.45;
 
     //prettier-ignore
@@ -28,7 +28,7 @@ export class ComputeUniforms {
     this.init();
   }
 
-  private init() {
+  init() {
     this.createBuffer();
   }
 

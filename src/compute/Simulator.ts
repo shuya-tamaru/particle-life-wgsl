@@ -69,6 +69,10 @@ export class Simulator {
   }
 
   resetSimulation() {
-    this.forceAccumulation.destroy();
+    this.computeUniforms.dispose();
+    this.forceAccumulation.dispose();
+    this.computeUniforms.init();
+    this.forceAccumulation.init();
+    this.integrate.init();
   }
 }

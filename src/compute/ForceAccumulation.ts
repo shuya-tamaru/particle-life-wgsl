@@ -158,7 +158,7 @@ export class ForceAccumulation {
     return this.forcesBuffer;
   }
 
-  destroy() {
+  dispose() {
     this.forcesBuffer.destroy();
   }
 }

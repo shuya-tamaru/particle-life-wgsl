@@ -46,6 +46,15 @@ fn getColor(particleType: u32) -> vec4<f32> {
   }
 }
 
+fn rand(seed: vec2<f32>) -> f32 {
+    let dotVal = dot(seed, vec2<f32>(12.9898, 78.233));
+    return fract(sin(dotVal) * 43758.5453);
+}
+
+fn randRange(seed: vec2<f32>, minVal: f32, maxVal: f32) -> f32 {
+    return mix(minVal, maxVal, rand(seed));
+}
+
 
 @vertex
 fn vs_main(
@@ -54,9 +63,10 @@ fn vs_main(
  ) -> VertexOutput {
   var output: VertexOutput;
   let center = positions[iid];
+  let seed = vec2<f32>(f32(iid), f32(iid));
   var radius = pp.particleRadius;
-  if (types[iid] == 0u) {
-    radius = pp.particleRadius * 1.15;
+  if (types[iid] > 3u) {
+    radius = pp.particleRadius * randRange(seed, 0.4, 1.2);
   }
   var worldPos = center.xy + vertPos.xy * radius;
   let aspectRatio = res.resolution.x / res.resolution.y;
@@ -80,6 +90,7 @@ fn fs_main(
 ) -> @location(0) vec4<f32> {
   let dist = length(localPos);
   var glow = 0.0;
+  
   if (ptype == 0u) {
     glow =  smoothstep(0.0, 1.0, dist);
   } else if (ptype == 1u) {

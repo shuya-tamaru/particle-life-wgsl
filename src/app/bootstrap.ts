@@ -38,7 +38,7 @@ export async function bootstrap() {
 
     //gui
     const bgColor = { r: 0.05, g: 0.07, b: 0.1, a: 1.0 };
-    new Gui(particleUniforms, simulator.getInstance().computeUniforms, bgColor);
+    new Gui(particles, particleUniforms, simulator, bgColor);
 
     const renderer = new Renderer(
       device,

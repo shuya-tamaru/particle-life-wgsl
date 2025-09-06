@@ -130,4 +130,18 @@ export class ParticleUniforms {
   getColorBuffer() {
     return this.colorBuffer;
   }
+
+  updateParticleCount(count: number) {
+    this.particleCount = count;
+  }
+
+  reset() {
+    this.dispose();
+    this.init();
+  }
+
+  dispose() {
+    this.particleParamsBuffer.destroy();
+    this.colorBuffer.destroy();
+  }
 }
