@@ -8,7 +8,7 @@ export class TimeStep {
       size: 16,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-    this.set(1 / 100);
+    this.set(1 / 150);
   }
 
   set(value: number) {

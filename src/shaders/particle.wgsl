@@ -3,6 +3,7 @@ struct VertexOutput {
   @location(0) color: vec4<f32>,
   @location(1) center: vec2<f32>,
   @location(2) localPos: vec2<f32>,
+  @location(3) @interpolate(flat) ptype: u32
 }
 
 struct Resolution {
@@ -25,22 +26,31 @@ struct TimeStep {
 
 
 
+const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
+    vec4<f32>(0.6, 0.8, 1.0, 1.0) ,
+    vec4<f32>(0.1, 0.4, 1.0, 1.0), // ディープブルー（胴体）
+    vec4<f32>(0.4, 0.2, 0.8, 1.0), // パープル（尾に向かう変化）
+    vec4<f32>(0.2, 1.0, 0.7, 1.0), // エメラルドグリーン（水生っぽい外郭）
+    vec4<f32>(1.0, 1.0, 0.3, 1.0), // 黄（浮遊光）,
+    vec4<f32>(1.0, 0.95, 0.9, 1.0) // 白（反射光／水面）
+);
+
 // const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-//     vec4<f32>(1.0, 0.2, 0.5, 1.0), // コーラルピンク
+//     vec4<f32>(1.0, 0.1, 0.7, 1.0), // コーラルピンク
 //     vec4<f32>(0.2, 1.0, 0.7, 1.0), // エメラルドグリーン
 //     vec4<f32>(0.2, 0.8, 1.0, 1.0), // ターコイズブルー
-//     vec4<f32>(0.5, 0.2, 0.8, 1.0), // ディープパープル
+//     vec4<f32>(0.1, 0.2, 1.0, 1.0), // ディープパープル
 //     vec4<f32>(0.8, 1.0, 0.2, 1.0), // ライムイエロー
 //     vec4<f32>(1.0, 1.0, 0.9, 1.0)  // ソフトホワイト
 // );
-const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-    vec4<f32>(1.0, 0.1, 0.8, 1.0), // パステルピンク
-    vec4<f32>(0.6, 0.8, 1.0, 1.0), // パステルブルー
-    vec4<f32>(0.0, 1.0, 0., 1.0), // パステルグリーン
-    vec4<f32>(1.0, 1.0, 1.0, 1.0), // パステルイエロー
-    vec4<f32>(0.8, 0.6, 1.0, 1.0), // パステルパープル
-    vec4<f32>(1.0, 0.9, 0.8, 1.0)  // ホワイトピーチ
-);
+// const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
+//     vec4<f32>(1.0, 0.1, 0.4, 1.0), // パステルピンク
+//     vec4<f32>(0.6, 0.8, 1.0, 1.0), // パステルブルー
+//     vec4<f32>(0.5, 0.9, 0.5, 1.0), // パステルグリーン
+//     vec4<f32>(1.0, 1.0, 1.0, 1.0), // パステルイエロー
+//     vec4<f32>(0.2, 0.2, 1.0, 1.0), // パステルパープル
+//     vec4<f32>(0.2, 0.4, 1.0, 1.0)  // ホワイトピーチ
+// );
 // const palette : array<vec4<f32>, 6> = array<vec4<f32>, 6>(
 //     vec4<f32>(1.0, 0.2, 0.0, 1.0), // ファイアレッド
 //     vec4<f32>(1.0, 0.5, 0.0, 1.0), // オレンジフレア
@@ -85,6 +95,7 @@ fn vs_main(
   output.color = getColor(types[iid]);
   output.center = center.xy;
   output.localPos = vertPos.xy;
+  output.ptype = types[iid];
   return output;
 }
 
@@ -93,10 +104,25 @@ fn fs_main(
   @builtin(position) fragCoord: vec4<f32>,
   @location(0) color: vec4<f32>,
   @location(1) center: vec2<f32>,
-  @location(2) localPos: vec2<f32>
+  @location(2) localPos: vec2<f32>,
+  @location(3) @interpolate(flat) ptype: u32
 ) -> @location(0) vec4<f32> {
   let dist = length(localPos);
-  let glow = 1.0 - smoothstep(0.0, 1.0, dist);
-  let emission = color.rgb * glow * 1.0;    // 中心を強調
+  var glow = 0.0;
+  if (ptype == 0u) {
+    glow =  smoothstep(0.0, 1.0, dist);
+  } else if (ptype == 1u) {
+    glow = 1.0- smoothstep(0.0, 1.0, dist);
+  } else if (ptype == 2u) {
+    glow = smoothstep(0.0, 1.0, dist);
+  } else if (ptype == 3u) {
+    glow = smoothstep(0.0, 1.0, dist);
+  } else if (ptype == 4u) {
+    glow =1.0- smoothstep(0.0, 1.0, dist);
+  } else if (ptype == 5u) {
+    glow = 1.0 -smoothstep(0.0, 1.0, dist);
+  }
+
+  let emission = color.rgb * glow * 1.5;    // 中心を強調
   return vec4<f32>(emission, glow);
 }
