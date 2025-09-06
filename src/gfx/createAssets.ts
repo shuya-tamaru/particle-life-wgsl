@@ -21,8 +21,8 @@ export function createAssets(
     circleInstance,
     resolutionSystem,
     timeStep,
-    100,
-    3,
+    20000,
+    6,
     format
   );
 

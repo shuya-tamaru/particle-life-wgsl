@@ -28,7 +28,12 @@ export async function bootstrap() {
     );
 
     //compute
-    const simulator = new Simulator(device, particles, timeStep);
+    const simulator = new Simulator(
+      device,
+      particles,
+      timeStep,
+      resolutionSystem
+    );
 
     //create scene
     const scene = new Scene(particles);

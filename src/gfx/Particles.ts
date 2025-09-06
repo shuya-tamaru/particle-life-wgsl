@@ -58,13 +58,13 @@ export class Particles {
     this.types = new Uint32Array(this.particleCount);
 
     for (let i = 0; i < this.particleCount; i++) {
-      this.positions[i * 4] = (Math.random() * 2 - 1) * this.aspectRatio;
+      this.positions[i * 4] = (Math.random() * 2 - 1.0) * this.aspectRatio;
       this.positions[i * 4 + 1] = Math.random() * 2 - 1.0;
       this.positions[i * 4 + 2] = 0;
       this.positions[i * 4 + 3] = 0;
 
-      this.velocities[i * 4] = (Math.random() - 0.5) * 0.1;
-      this.velocities[i * 4 + 1] = (Math.random() - 0.5) * 0.1;
+      this.velocities[i * 4] = 0;
+      this.velocities[i * 4 + 1] = 0;
       this.velocities[i * 4 + 2] = 0;
       this.velocities[i * 4 + 3] = 0;
 
@@ -158,7 +158,23 @@ export class Particles {
       fragment: {
         module: this.device.createShaderModule({ code: particleShader }),
         entryPoint: "fs_main",
-        targets: [{ format: this.format }],
+        targets: [
+          {
+            format: this.format,
+            // blend: {
+            // color: {
+            //   srcFactor: "one",
+            //   dstFactor: "one",
+            //   operation: "add",
+            // },
+            // alpha: {
+            //   srcFactor: "one",
+            //   dstFactor: "one",
+            //   operation: "add",
+            // },
+            // },
+          },
+        ],
       },
       primitive: {
         topology: "triangle-list",

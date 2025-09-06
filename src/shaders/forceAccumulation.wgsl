@@ -9,16 +9,50 @@ struct ParticleParams {
   particleCount: u32
 };
 
-const INTERACTION_RADIUS = 0.1;
-const interactionMatrix: array<f32, 3 * 3> = array<f32, 3 * 3>(
-     0.5, -0.3,  0.2,
-    -0.3,  0.5, -0.1,
-     0.2, -0.1,  0.5
+const interactionMatrix: array<f32, 36> = array<f32, 36>(
+   0.2,  0.1, -0.1,  0.0,  0.03,  0.0,   // 赤 → 緑/紫に惹かれる
+  -0.2,  0.2,  0.1,  0.0,  0.0,  0.0,   // 緑 → 青に惹かれる
+   0.0, -0.2,  0.2,  0.0,  0.03,  0.0,   // 青 → 緑/紫に惹かれる
+   0.0,  0.001, 0.001,  0.001,  0.001 ,0.001,   // 黄 → 全体をやや引き寄せる
+   0.3,  0.0,  0.2, -0.2,  0.2,  0.0,   // 紫 → 赤/青に惹かれる
+   0.0,  0.0,  0.0,  0.3,  0.0,  0.2    // 白 → 黄に惹かれる
 );
 
+// const interactionMatrix: array<f32, 36> = array<f32, 36>(
+//    0.2,  0.4, -0.1,  0.0,  0.3,  0.0,   // 赤 → 緑/紫に惹かれる
+//   -0.2,  0.2,  0.5,  0.0,  0.0,  0.0,   // 緑 → 青に惹かれる
+//    0.0, -0.2,  0.2,  0.0,  0.3,  0.0,   // 青 → 緑/紫に惹かれる
+//    0.0,  0.001, 0.001,  0.001,  0.001 ,0.001,   // 黄 → 全体をやや引き寄せる
+//    0.3,  0.0,  0.2, -0.2,  0.2,  0.0,   // 紫 → 赤/青に惹かれる
+//    0.0,  0.0,  0.0,  0.3,  0.0,  0.2    // 白 → 黄に惹かれる
+// );
+
+// const interactionMatrix: array<f32, 36> = array<f32, 36>(
+//    0.4,  0.4, -0.3,  0.0,  0.0,  0.0,   // 赤 → 緑を追う、青を避ける
+//   -0.4,  0.4,  0.5,  0.0,  0.0,  0.0,   // 緑 → 青を追う、赤を避ける
+//    0.5, -0.3,  0.4,  0.0,  0.0,  0.0,   // 青 → 赤を追う、緑を避ける
+//    0.0,  0.0,  0.0,  0.1,  0.0,  0.0,   // 黄 → 自分自身にだけ弱い引力
+//    0.0,  0.0,  0.0,  0.0,  0.2,  0.6,   // 紫 → 白に惹かれる
+//    0.0,  0.0,  0.0,  0.0,  0.6,  0.2    // 白 → 紫に惹かれる
+// );
+
+
 fn getInteractionMatrix(ti: u32, tj: u32) -> f32 {
-  return interactionMatrix[ti * 3 + tj];
+  return interactionMatrix[ti * 4 + tj];
 }
+
+const INTERACTION_RADIUS = 0.1;
+const BETA = 0.45;
+fn forceKernel(r:f32, a:f32) -> f32 {
+  if(r < BETA){
+    return r / BETA - 1.0;
+  }else if(r < 1.0){
+    return a * (1.0 - abs(2.0 * r -1.0 - BETA) / (1.0 - BETA));
+  }else{
+    return 0.0;
+  }
+}
+const FORCE_SCALE = 20.0;
 
 
 @group(0) @binding(0) var<storage, read> positions: array<vec4<f32>>;
@@ -48,12 +82,13 @@ fn cs_main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let d = pj - pi;
     let dist = length(d);
 
-    if (dist > 0.0 && dist < INTERACTION_RADIUS) {
-      let dir = normalize(d);
-      let k = getInteractionMatrix(ti, tj);
-      let w = 1.0 - dist / INTERACTION_RADIUS;
-      f+= dir * k * w;
-    }
+    if(dist > INTERACTION_RADIUS) { continue; }
+
+    let dir = normalize(d);
+    let k = getInteractionMatrix(ti, tj);
+    let r = dist / INTERACTION_RADIUS;
+    let w = forceKernel(r, k);
+    f+= dir * w * FORCE_SCALE;
   }
 
   forces[i] = vec4<f32>(f, 0.0, 0.0);
