@@ -89,21 +89,13 @@ fn fs_main(
   @location(3) @interpolate(flat) ptype: u32
 ) -> @location(0) vec4<f32> {
   let dist = length(localPos);
-  var glow = 0.0;
+  let innerGlow = (ptype == 1u || ptype == 4u || ptype == 5u);
   
-  if (ptype == 0u) {
-    glow =  smoothstep(0.0, 1.0, dist);
-  } else if (ptype == 1u) {
-    glow = 1.0- smoothstep(0.0, 1.0, dist);
-  } else if (ptype == 2u) {
-    glow = smoothstep(0.0, 1.0, dist);
-  } else if (ptype == 3u) {
-    glow = smoothstep(0.0, 1.0, dist);
-  } else if (ptype == 4u) {
-    glow =1.0- smoothstep(0.0, 1.0, dist);
-  } else if (ptype == 5u) {
-    glow = 1.0 -smoothstep(0.0, 1.0, dist);
-  }
+  let glow = select(
+    smoothstep(0.0, 1.0, dist),           // 外側が明るい
+    1.0 - smoothstep(0.0, 1.0, dist),    // 内側が明るい
+    innerGlow
+  );
 
   let emission = color.rgb * glow * 2.0;    // 中心を強調
   return vec4<f32>(emission, glow);
