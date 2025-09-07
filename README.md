@@ -4,7 +4,9 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-デモページ-brightgreen)](https://www.styublog.com/shader/particle-life)
 [![YouTube](https://img.shields.io/badge/YouTube-動画解説-red)](https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV)
 
-[![Particle Life Demo](public/thumbnail.jpg)](https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV)
+<a href="https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV" target="_blank">
+  <img src="public/thumbnail.jpg" alt="Particle Life Demo" />
+</a>
 
 A Particle Life simulation implemented using WebGPU and WGSL (WebGPU Shading Language). Multiple particle types interact with each other to generate complex and beautiful patterns.
 
@@ -60,6 +62,6 @@ src/
 
 ## Demo
 
-- **Live Demo**: [https://www.styublog.com/shader/particle-life](https://www.styublog.com/shader/particle-life)
-- **Video Explanation**: [YouTube](https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV)
+- **Live Demo**: <a href="https://www.styublog.com/shader/particle-life" target="_blank">https://www.styublog.com/shader/particle-life</a>
+- **Video Explanation**: <a href="https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV" target="_blank">YouTube</a>
 
