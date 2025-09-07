@@ -1,8 +1,9 @@
 # Particle Life - WebGPU/WGSL
 
-[![日本語版](https://img.shields.io/badge/日本語版-README.ja.md-blue)](README.ja.md)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-デモページ-brightgreen)](https://www.styublog.com/shader/particle-life)
-[![YouTube](https://img.shields.io/badge/YouTube-動画解説-red)](https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV)
+**Language / 言語**: [日本語版 README](README.ja.md) | [English README](README.md)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Demo-brightgreen)](https://www.styublog.com/shader/particle-life)
+[![YouTube](https://img.shields.io/badge/YouTube-Demo-red)](https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV)
 
 <a href="https://youtu.be/wZq1vvrw90Y?si=yvt6Re6rliepYDJV" target="_blank">
   <img src="public/thumbnail.jpg" alt="Particle Life Demo" />
