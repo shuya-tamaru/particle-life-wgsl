@@ -42,7 +42,7 @@ fn forceKernel(r:f32, a:f32) -> f32 {
 }
 
 fn getInteractionMatrix(ti: u32, tj: u32) -> f32 {
-  return imatrix[ti * 4 + tj];
+  return imatrix[ti * 6 + tj];
 }
 
 @compute @workgroup_size(64)
